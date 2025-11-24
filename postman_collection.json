@@ -1,0 +1,566 @@
+{
+  "info": {
+    "name": "Snippet Service API Tests",
+    "description": "Complete API testing collection for Auth and Snippet services",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4010",
+      "type": "string"
+    },
+    {
+      "key": "aliceToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bobToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "snippetId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth Service",
+      "item": [
+        {
+          "name": "Register Alice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"SecurePass123!\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Bob",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bob@example.com\",\n  \"password\": \"SecurePass456!\",\n  \"role\": \"USER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login Alice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"aliceToken\", jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login Bob",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"bobToken\", jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bob@example.com\",\n  \"password\": \"SecurePass456!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Validate Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/validate",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "validate"]
+            }
+          }
+        },
+        {
+          "name": "Login with Wrong Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"password\": \"WrongPassword!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Snippet Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/check",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "check"]
+            }
+          }
+        },
+        {
+          "name": "Create Python Snippet (Alice)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"snippetId\", jsonData.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Python Hello World\",\n  \"code\": \"print(\\\"Hello, World!\\\")\",\n  \"language\": \"python\",\n  \"description\": \"A simple Hello World program in Python\",\n  \"tags\": [\"python\", \"basics\", \"tutorial\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet"]
+            }
+          }
+        },
+        {
+          "name": "Create JavaScript Snippet (Alice)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"JavaScript Array Methods\",\n  \"code\": \"const numbers = [1, 2, 3, 4, 5];\\nconst doubled = numbers.map(n => n * 2);\\nconsole.log(doubled);\",\n  \"language\": \"javascript\",\n  \"description\": \"Demonstrates array map method\",\n  \"tags\": [\"javascript\", \"arrays\", \"es6\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet"]
+            }
+          }
+        },
+        {
+          "name": "Create Java Snippet (Alice)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Java Fibonacci\",\n  \"code\": \"public class Fibonacci {\\n    public static int fib(int n) {\\n        if (n <= 1) return n;\\n        return fib(n-1) + fib(n-2);\\n    }\\n}\",\n  \"language\": \"java\",\n  \"description\": \"Recursive Fibonacci implementation\",\n  \"tags\": [\"java\", \"algorithms\", \"recursion\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet"]
+            }
+          }
+        },
+        {
+          "name": "Create SQL Snippet (Bob)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bobToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"SQL Join Example\",\n  \"code\": \"SELECT users.name, orders.total\\nFROM users\\nINNER JOIN orders ON users.id = orders.user_id\\nWHERE orders.status = \\\"completed\\\";\",\n  \"language\": \"sql\",\n  \"description\": \"Basic SQL inner join\",\n  \"tags\": [\"sql\", \"database\", \"joins\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet"]
+            }
+          }
+        },
+        {
+          "name": "Get All Snippets (Alice)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get All Snippets (Bob)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{bobToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get Snippets with Pagination",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet?sort=recent&limit=2&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet"],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "recent"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Snippet by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/{{snippetId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "{{snippetId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Snippet",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Python Hello World - UPDATED\",\n  \"code\": \"print(\\\"Hello, Updated World!\\\")\",\n  \"language\": \"python\",\n  \"description\": \"Updated description\",\n  \"tags\": [\"python\", \"basics\", \"updated\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/{{snippetId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "{{snippetId}}"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Favorite",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/{{snippetId}}/favorite",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "{{snippetId}}", "favorite"]
+            }
+          }
+        },
+        {
+          "name": "Get Favorite Snippets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/favorites",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "favorites"]
+            }
+          }
+        },
+        {
+          "name": "Search by Tag",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/search/tag?tag=python",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "search", "tag"],
+              "query": [
+                {
+                  "key": "tag",
+                  "value": "python"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search by Language",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/search/language?language=javascript",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "search", "language"],
+              "query": [
+                {
+                  "key": "language",
+                  "value": "javascript"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Snippet",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aliceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/{{snippetId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "{{snippetId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authorization Tests",
+      "item": [
+        {
+          "name": "Access Without Token (Should Fail)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "all"]
+            }
+          }
+        },
+        {
+          "name": "Access with Invalid Token (Should Fail)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer invalid.token.here"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/snippet/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "snippet", "all"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

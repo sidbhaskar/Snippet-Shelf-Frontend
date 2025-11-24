@@ -1,0 +1,289 @@
+🧩 SnippetShelf Backend API Documentation
+ Version: 1.0
+ Base URL: /api
+ Backend Framework: Spring Boot
+ Frontend Consumer: SnippetShelf React Application
+
+1. Overview
+The SnippetShelf Backend API provides RESTful endpoints for managing and retrieving data related to code snippets, collections, team activities, and analytics. It serves as the data layer for the SnippetShelf frontend application.
+All responses are in JSON format, and timestamps use ISO 8601 format (e.g., 2023-10-27T10:00:00Z).
+
+2. Configuration & Setup
+2.1 CORS Configuration
+Your Spring Boot backend must be configured to allow requests from the React frontend (http://localhost:3000).
+Example configuration using WebMvcConfigurer:
+@Bean
+public WebMvcConfigurer corsConfigurer() {
+    return new WebMvcConfigurer() {
+        @Override
+        public void addCorsMappings(CorsRegistry registry) {
+            registry.addMapping("/api/**")
+                    .allowedOrigins("http://localhost:3000")
+                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .allowedHeaders("*")
+                    .allowCredentials(true);
+        }
+    };
+}
+
+
+3. API Endpoints
+3.1 Dashboard Endpoints
+GET /api/dashboard/stats
+Description:
+ Fetches primary dashboard statistics.
+Response 200 OK:
+{
+  "totalSnippets": 124,
+  "collections": 8,
+  "languages": 15,
+  "favorites": 23
+}
+
+
+GET /api/dashboard/quickstats
+Description:
+ Fetches quick overview data and popular tags.
+Response 200 OK:
+{
+  "thisWeek": "+5 snippets",
+  "mostUsed": "JavaScript",
+  "favorites": "23 items",
+  "collections": "8 active",
+  "popularTags": ["javascript", "react", "python", "utilities", "api", "css", "hooks", "nodejs"]
+}
+
+
+3.2 Snippet Endpoints
+GET /api/snippets
+Description:
+ Retrieves a list of snippets with sorting and pagination support.
+Query Parameters:
+Parameter
+Type
+Default
+Description
+sort
+string
+recent
+Sorting order (recent or popular)
+limit
+int
+6
+Number of snippets to return
+offset
+int
+0
+Number of snippets to skip
+
+Response 200 OK:
+[
+  {
+    "id": "1",
+    "title": "Array Utility Functions",
+    "description": "Collection of useful array manipulation functions...",
+    "language": "JavaScript",
+    "code": "const unique = arr => [...];",
+    "tags": ["utilities", "arrays"],
+    "isFavorite": false,
+    "createdAt": "2023-10-27T10:00:00Z"
+  }
+]
+
+
+POST /api/snippets
+Description:
+ Creates a new code snippet.
+Request Body:
+{
+  "title": "My New Snippet",
+  "description": "This is a test snippet.",
+  "code": "console.log('Hello, World!');",
+  "language": "JavaScript",
+  "tags": ["test", "hello"],
+  "collectionId": "c1"
+}
+
+Response 201 Created:
+{
+  "id": "new-generated-id-7",
+  "title": "My New Snippet",
+  "description": "This is a test snippet.",
+  "code": "console.log('Hello, World!');",
+  "language": "JavaScript",
+  "tags": ["test", "hello"],
+  "isFavorite": false,
+  "createdAt": "2023-10-27T12:00:00Z"
+}
+
+
+3.3 Collections Endpoints
+GET /api/collections
+Description:
+ Retrieves all snippet collections.
+Response 200 OK:
+[
+  {
+    "id": "c1",
+    "name": "Frontend",
+    "description": "UI components, CSS animations...",
+    "snippetCount": 12,
+    "updatedAt": "2023-10-27T08:00:00Z",
+    "color": "rgba(252, 165, 165, 0.5)",
+    "members": ["user1_avatar_url", "user2_avatar_url"]
+  }
+]
+
+
+3.4 Activity Endpoints
+GET /api/activities
+Description:
+ Retrieves the recent activity feed for the current user.
+Query Parameters:
+Parameter
+Type
+Default
+Description
+limit
+int
+5
+Number of activities to return
+
+Response 200 OK:
+[
+  {
+    "id": "a1",
+    "type": "created_snippet",
+    "description": "Created new snippet 'Array Utility Functions'",
+    "timestamp": "2023-10-27T10:00:00Z"
+  }
+]
+
+
+3.5 Analytics Endpoints
+GET /api/analytics/usage
+Description:
+ Retrieves data for usage analytics and charts.
+Response 200 OK:
+{
+  "snippetsOverTime": [
+    { "month": "Jan", "snippets": 20 },
+    { "month": "Feb", "snippets": 35 }
+  ],
+  "languageDistribution": [
+    { "name": "JavaScript", "value": 45, "color": "#facc15" },
+    { "name": "Python", "value": 28, "color": "#3b82f6" }
+  ],
+  "viewCount": 2847,
+  "copyCount": 1234,
+  "shareCount": 89
+}
+
+
+3.6 Team Endpoints
+GET /api/team/members
+Description:
+ Fetches a list of all team members.
+Response 200 OK:
+[
+  {
+    "id": "m1",
+    "name": "John Doe",
+    "email": "john@company.com",
+    "role": "Owner",
+    "avatarUrl": "https://example.com/avatar1.png"
+  }
+]
+
+
+GET /api/team/activity
+Description:
+ Fetches the recent activity feed for the entire team.
+Query Parameters:
+Parameter
+Type
+Default
+Description
+limit
+int
+4
+Number of activities to return
+
+Response 200 OK:
+[
+  {
+    "id": "ta1",
+    "type": "created_snippet",
+    "description": "Sarah created a new snippet 'React Custom Hook'",
+    "timestamp": "2023-10-27T10:00:00Z",
+    "user": {
+      "name": "Sarah Wilson",
+      "avatarUrl": "https://example.com/avatar2.png"
+    }
+  }
+]
+
+
+GET /api/team/collections
+Description:
+ Retrieves collections that are shared with the team.
+Response 200 OK:
+[
+  {
+    "id": "sc1",
+    "name": "Team Frontend",
+    "description": "Shared UI components and utilities",
+    "snippetCount": 18,
+    "members": ["user1_id", "user2_id"]
+  }
+]
+
+
+4. Data Standards
+Date format: ISO 8601 (YYYY-MM-DDTHH:mm:ssZ)
+
+
+Response type: JSON
+
+
+HTTP status codes:
+
+
+200 OK — Successful GET request
+
+
+201 Created — Resource successfully created
+
+
+400 Bad Request — Invalid request or missing parameters
+
+
+404 Not Found — Resource does not exist
+
+
+500 Internal Server Error — Unexpected backend error
+
+
+
+5. Example Integration (Frontend)
+Fetch Dashboard Stats (React Example):
+async function getDashboardStats() {
+  const res = await fetch('http://localhost:8080/api/dashboard/stats');
+  if (!res.ok) throw new Error('Failed to fetch stats');
+  return await res.json();
+}
+
+
+6. Notes
+DTOs in the backend should match the JSON response schema above.
+
+
+The frontend handles presentation-specific fields (like icons).
+
+
+Extend endpoints or add new ones using the same /api prefix to maintain consistency.
+
+
+
+Would you like me to format this as Markdown for a GitHub README, OpenAPI/Swagger specification (YAML/JSON), or a PDF developer guide?
+
