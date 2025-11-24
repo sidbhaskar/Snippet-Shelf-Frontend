@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useStats } from '../../context/StatsContext';
 import {
     LayoutGrid, Plus, Star, LogOut, Code2, Settings, Hash,
     Sun, Moon, Clock, Archive, Search, Bell, ChevronDown,
@@ -21,7 +22,7 @@ const SidebarItem = ({ to, icon: Icon, label, badge, active }) => (
             <Icon size={18} />
             <span className="font-medium text-sm">{label}</span>
         </div>
-        {badge && (
+        {badge !== undefined && badge !== null && (
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
                 {badge}
             </span>
@@ -48,6 +49,7 @@ const CollectionItem = ({ color, label, count }) => (
 const DashboardLayout = () => {
     const { logout, user } = useAuth();
     const { theme, toggleTheme } = useTheme();
+    const { stats } = useStats();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -90,24 +92,30 @@ const DashboardLayout = () => {
 
                 {/* Scrollable Nav */}
                 <div className="flex-1 overflow-y-auto px-2 custom-scrollbar">
-                    <SidebarItem to="/" icon={LayoutGrid} label="Dashboard" badge="24" />
-                    <SidebarItem to="/favorites" icon={Star} label="Favorites" badge="8" />
+                    <SidebarItem to="/" icon={LayoutGrid} label="Dashboard" badge={stats.totalSnippets} />
+                    <SidebarItem to="/favorites" icon={Star} label="Favorites" badge={stats.totalFavorites} />
                     <SidebarItem to="/recent" icon={Clock} label="Recent" />
-                    <SidebarItem to="/archive" icon={Archive} label="Archive" badge="3" />
+                    <SidebarItem to="/archive" icon={Archive} label="Archive" badge="0" />
 
                     <SectionHeader label="Collections" />
-                    <CollectionItem color="#ef4444" label="Frontend" count="12" />
-                    <CollectionItem color="#3b82f6" label="Backend" count="8" />
-                    <CollectionItem color="#22c55e" label="DevOps" count="4" />
+                    <CollectionItem color="#ef4444" label="Frontend" count="0" />
+                    <CollectionItem color="#3b82f6" label="Backend" count="0" />
+                    <CollectionItem color="#22c55e" label="DevOps" count="0" />
                     <button className="w-full flex items-center gap-3 px-4 py-2 text-muted hover:text-primary mt-1">
                         <Plus size={14} />
                         <span className="text-sm">New Collection</span>
                     </button>
 
                     <SectionHeader label="Languages" />
-                    <SidebarItem to="/lang/js" icon={FileCode} label="JavaScript" badge="15" />
-                    <SidebarItem to="/lang/py" icon={FileCode} label="Python" badge="9" />
-                    <SidebarItem to="/lang/react" icon={Code2} label="React" badge="7" />
+                    {Object.entries(stats.languageCounts || {}).map(([lang, count]) => (
+                        <SidebarItem
+                            key={lang}
+                            to={`/lang/${lang.toLowerCase()}`}
+                            icon={FileCode}
+                            label={lang.charAt(0).toUpperCase() + lang.slice(1)}
+                            badge={count}
+                        />
+                    ))}
                     <button className="w-full flex items-center gap-2 px-4 py-2 text-muted hover:text-primary mt-1 text-sm">
                         <span>View all languages</span>
                         <ChevronDown size={14} style={{ transform: 'rotate(-90deg)' }} />

@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Code2, Folder, Layers, Star, Plus, Download, FileCode, Database } from 'lucide-react';
-import { fetchDashboardStats } from '../../api/services';
 import { useAuth } from '../../context/AuthContext';
+import { useStats } from '../../context/StatsContext';
 
 const StatCard = ({ title, value, subtext, icon: Icon, color, bg, trend }) => (
     <div className="bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl p-6 flex justify-between items-start hover:shadow-lg transition-all duration-300 group">
@@ -22,25 +21,8 @@ const StatCard = ({ title, value, subtext, icon: Icon, color, bg, trend }) => (
 
 const WelcomeStats = () => {
     const { user } = useAuth();
+    const { stats } = useStats();
     const navigate = useNavigate();
-    const [stats, setStats] = useState({
-        totalSnippets: 124,
-        collections: 8,
-        languages: 15,
-        favorites: 23
-    });
-
-    useEffect(() => {
-        const loadStats = async () => {
-            try {
-                const data = await fetchDashboardStats();
-                if (data) setStats(data);
-            } catch (error) {
-                console.log("Using default stats for UI preview");
-            }
-        };
-        loadStats();
-    }, []);
 
     return (
         <div className="mb-10">
@@ -76,7 +58,7 @@ const WelcomeStats = () => {
                 />
                 <StatCard
                     title="Collections"
-                    value={stats.collections}
+                    value={0} // Placeholder until collections API is ready
                     trend="+2"
                     subtext="new this week"
                     icon={Folder}
@@ -85,16 +67,16 @@ const WelcomeStats = () => {
                 />
                 <StatCard
                     title="Languages"
-                    value={stats.languages}
+                    value={Object.keys(stats.languageCounts || {}).length}
                     trend=""
-                    subtext="JavaScript, Python..."
+                    subtext="Active languages"
                     icon={Layers}
                     color="#06b6d4"
                     bg="rgba(6, 182, 212, 0.1)"
                 />
                 <StatCard
                     title="Favorites"
-                    value={stats.favorites}
+                    value={stats.totalFavorites}
                     trend=""
                     subtext="Most used snippets"
                     icon={Star}

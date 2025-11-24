@@ -4,15 +4,20 @@ import api from './axios';
 // Note: Dashboard endpoints are not in the Postman collection.
 // We will mock them or derive from snippets for now to prevent errors.
 export const fetchDashboardStats = async () => {
-    // Placeholder: Return mock data or derive from fetchSnippets if needed
-    // const response = await api.get('/dashboard/stats');
-    // return response.data;
-    return {
-        totalSnippets: 0,
-        collections: 0,
-        languages: 0,
-        favorites: 0
-    };
+    try {
+        const response = await api.get('/snippet/statistics');
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+        // Return default structure on error to prevent crashes
+        return {
+            totalSnippets: 0,
+            totalFavorites: 0,
+            totalTags: 0,
+            languageCounts: {},
+            tagCounts: {}
+        };
+    }
 };
 
 export const fetchQuickStats = async () => {

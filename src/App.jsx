@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { StatsProvider } from './context/StatsContext';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import DashboardLayout from './components/Layout/DashboardLayout';
@@ -25,22 +26,24 @@ function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+        <StatsProvider>
+          <Router>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-            <Route path="/" element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }>
-              <Route index element={<Home />} />
-              <Route path="create" element={<CreateSnippet />} />
-              <Route path="snippet/:id" element={<SnippetDetails />} />
-            </Route>
-          </Routes>
-        </Router>
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }>
+                <Route index element={<Home />} />
+                <Route path="create" element={<CreateSnippet />} />
+                <Route path="snippet/:id" element={<SnippetDetails />} />
+              </Route>
+            </Routes>
+          </Router>
+        </StatsProvider>
       </ThemeProvider>
     </AuthProvider>
   );
